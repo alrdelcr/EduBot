@@ -98,8 +98,8 @@ async def on_message(message):
             return
 
     elif message.content.startswith('!mla'): #cite source in mla
+        d = {'01':'Jan.','02':'Feb.','03':'Mar.','04':'Apr.','05':'May','06':'June','07':'July','08':'Aug.','09':'Sep.','10':'Oct.','11':'Nov.','12':'Dec.'}
         try:
-            d = {'01':'Jan.','02':'Feb.','03':'Mar.','04':'Apr.','05':'May','06':'June','07':'July','08':'Aug.','09':'Sep.','10':'Oct.','11':'Nov.','12':'Dec.'}
             url = str(message.content[4::].strip())
             article = Article(url,language="en")
             article.download()
@@ -131,5 +131,26 @@ async def on_message(message):
             return
         except:
             await message.channel.send("Sorry, mla citation not applicable for given source, would you like to do it manually?(yes/no)")
-
+            message = await client.wait_for("message")
+            if (str(message.content)) == "yes":
+                await message.channel.send("url por favor: ")
+                message = await client.wait_for("message")
+                url = str(message.content)
+                await message.channel.send("Publish date needed, please input (Format: year-month-day, ex: 2003-10-30): ")
+                message = await client.wait_for("message")
+                publishdate = (str(message.content)).split("-")
+                await message.channel.send("author needed, please input(Format: FirstName LastName): ")
+                message = await client.wait_for("message")
+                author = message.content
+                await message.channel.send("title of article needed, please input: ")
+                message = await client.wait_for("message")
+                title = str(message.content)
+                publishdate[1] = d[publishdate[1]]
+                publishdate = publishdate[2] + ", " + publishdate[1] + " " + publishdate[0]
+                mag = url.split(".")[1]
+                mag = mag[0].upper() + mag[1::]
+                author = (author.split())
+                author = " ".join(author[1::]) + ", " + author[0]
+                citation = author + ". " + "\"" + title + "\"" + ". " + mag + ", "+ publishdate + ", " + url
+                await message.channel.send(citation)
 client.run(parser.get("token","token"))
