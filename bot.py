@@ -99,6 +99,7 @@ async def on_message(message):
 
     elif message.content.startswith('!mla'): #cite source in mla
         d = {'01':'Jan.','02':'Feb.','03':'Mar.','04':'Apr.','05':'May','06':'June','07':'July','08':'Aug.','09':'Sep.','10':'Oct.','11':'Nov.','12':'Dec.'}
+        domains = [".com",".org",".net",".co",".us"]
         try:
             url = str(message.content[4::].strip())
             article = Article(url,language="en")
@@ -124,8 +125,16 @@ async def on_message(message):
             publishdate[1] = d[publishdate[1]]
             publishdate = publishdate[2] + ", " + publishdate[1] + " " + publishdate[0]
             authors = (authors[0].split())[::-1]
-            mag = url.split(".")[1]
-            mag = mag[0].upper() + mag[1::]
+            r = -1
+            for domain in domains:
+                if r == -1:
+                    r = url.find(domain)
+                else:
+                    break
+            l = r - 1
+            while (url[l]).isalnum() and l >= 0:
+                l -= 1
+            mag = url[l+1].upper() + url[l+2:r]
             citation = ", ".join(authors) + ". " + "\"" + title + "\"" + ". " + mag + ", "+ publishdate + ", " + url
             await message.channel.send(citation)
             return
@@ -147,10 +156,18 @@ async def on_message(message):
                 title = str(message.content)
                 publishdate[1] = d[publishdate[1]]
                 publishdate = publishdate[2] + ", " + publishdate[1] + " " + publishdate[0]
-                mag = url.split(".")[1]
-                mag = mag[0].upper() + mag[1::]
+                r = -1
+                for domain in domains:
+                    if r == -1:
+                        r = url.find(domain)
+                    else:
+                        break
+                l = r - 1
+                while (url[l]).isalnum() and l >= 0:
+                    l -= 1
+                mag = url[l+1:r]
                 author = (author.split())
                 author = " ".join(author[1::]) + ", " + author[0]
-                citation = author + ". " + "\"" + title + "\"" + ". " + mag + ", "+ publishdate + ", " + url
+                citation = ", ".join(author) + ". " + "\"" + title + "\"" + ". " + mag + ", "+ publishdate + ", " + url
                 await message.channel.send(citation)
 client.run(parser.get("token","token"))
